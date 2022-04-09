@@ -1,0 +1,109 @@
+---
+- name: SeaweedFS deployment
+  hosts: seaweed
+  become: yes
+  become_method: sudo
+
+  vars_files:
+    - group_vars/all.yml
+
+  roles:
+    - roles/common
+    - roles/os-seaweedfs
+
+  handlers:
+    - name: reload_systemctl
+      command: systemctl daemon-reload
+    
+    - name: restart_swmaster
+      command: systemctl restart seaweedmaster
+
+    - name: restart_swvolume
+      command: systemctl restart seaweedvolume
+
+    - name: restart_swfiler
+      command: systemctl restart seaweedfiler
+
+  pre_tasks:
+    - name: Atualizar apt cache.
+      apt: update_cache=true cache_valid_time=3600
+
+  tasks:
+    - name: Garantir que os diretorios existem
+      file:
+        path: "{{seaweedfs_voldir}}"
+        state: directory
+        mode: 0774
+        owner: "{{sw_username}}"
+        group: "{{sw_groupname}}"
+    
+    - name: Garantir que a pasta de trabalho do filer existe.
+      file:
+        path: "{{ seaweedfs_filer_path }}"
+        state: directory
+        owner: "{{ sw_username }}"
+        group: "{{ sw_groupname }}"
+        mode: "700"
+      run_once: true
+    
+    - name: Criar o ficheiro de configuração do serviço filer
+      copy:
+        dest: "{{ seaweedfs_filer_path }}/filer.toml"
+        content: |
+          [leveldb2]
+          enabled = true
+          dir = "."	
+        mode: u=rwx,g=rwx,o=rx
+        owner: "{{ sw_username }}"
+        group: "{{ sw_groupname }}"
+      run_once: true
+
+    - name: Criação do serviço para o Seaweed Master apenas no primeiro nó do cluster
+      template:
+        src: templates/seaweedmaster.service.j2
+        dest: /lib/systemd/system/seaweedmaster.service
+        mode: 0644
+      run_once: true
+      notify:
+        - reload_systemctl
+        - restart_swmaster
+
+    - name: Criação do serviço filer no servidor master
+      template:
+        src: templates/seaweedfiler.service.j2
+        dest: /lib/systemd/system/seaweedfiler.service
+        mode: 0644
+      run_once: true
+      notify:
+        - reload_systemctl
+        - restart_swfiler
+
+    - name: Criando o serviço Seaweed Volume nos três nós do cluster.
+      template:
+        src: templates/seaweedvolume.service.j2
+        dest: /lib/systemd/system/seaweedvolume.service
+        mode: 0644
+      notify:
+        - reload_systemctl
+        - restart_swvolume
+
+    - name: Iniciando o serviço Seaweed Master
+      service:
+        name: seaweedmaster.service
+        state: started
+        enabled: yes
+      run_once: true
+    
+    - name: Iniciando o serviço Seaweed filer
+      service:
+        name: seaweedfiler.service
+        state: started
+        enabled: yes
+      run_once: true
+
+    - name: Iniciando o serviço Seaweed Volume
+      service:
+        name: seaweedvolume.service
+        state: started
+        enabled: yes
+

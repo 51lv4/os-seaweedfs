@@ -1,0 +1,45 @@
+---
+# tasks file for os-seaweedfs
+
+- name: Instalação dos pré-requisitos em Red Hat
+  import_tasks: redhat.yml
+  when: ansible_facts['os_family']|lower == 'redhat'
+
+- name: Instalação dos pré-requisitos em Debian.
+  import_tasks: debian.yml
+  when: ansible_facts['os_family']|lower == 'debian'
+
+- name: Cria o directorio para download das versões do seaweedfs
+  become: yes
+  file:
+    path: "{{seaweedfs_download_path}}"
+    state: directory
+    mode: 0755
+    owner: "{{sw_username}}"
+    group: "{{sw_groupname}}"
+
+- name: Comunicar com API do Github para obter a versão mais recente
+  uri:
+    url: https://api.github.com/repos/chrislusf/seaweedfs/releases/latest
+    return_content: true
+  register: seaweedfs_latest
+
+
+- name: Transferir a versão mais recente do SeaweedFS
+  become: yes
+  get_url:
+    url: "{{seaweedfs_download_url}}"
+    dest: "{{ seaweedfs_download_path }}"
+    mode: 0755
+    checksum: "{{seaweedfs_md5sum}}"
+    owner: "{{sw_username}}"
+    group: "{{sw_groupname}}"
+
+- name: Descompactar o binário em /usr/local/bin
+  become: yes
+  unarchive:
+    src: "{{seaweedfs_download_path}}/linux_amd64.tar.gz"
+    dest: "{{seaweedfs_install_path}}"
+    remote_src: yes
+
+

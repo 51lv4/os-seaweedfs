@@ -1,0 +1,21 @@
+---
+
+# Configuração da Firewall
+
+- name: Remover firewalld caso este já esteja instalado
+  yum:
+    name: firewalld
+    state: absent
+
+- name: Instalação do pacote firewalld
+  yum:
+    name: firewalld
+    state: latest
+    update_cache: yes
+
+- name: Garantir que o serviço está em execução
+  service:
+    name: firewalld
+    state: started
+
+# TODO - Setup do serviço firewalld 

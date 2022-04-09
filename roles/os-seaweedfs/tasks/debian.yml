@@ -1,0 +1,6 @@
+---
+
+- name: Instalação/Atualização dos pré-requisitos
+  apt:
+    name: ['git','unzip']
+    state: latest

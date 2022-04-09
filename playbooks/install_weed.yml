@@ -1,0 +1,17 @@
+---
+- name: Seaweed Host Install using role.
+  hosts: localhost
+  connection: local
+  become: yes
+  #become_method: sudo
+
+  roles:
+    - ../os-seaweedfs/roles/os-seaweedfs
+
+  vars:
+    - sw_username: s1lv4
+    - sw_groupname: s1lv4
+    - seaweedfs_install_path: /usr/local/bin
+
+  tasks:
+

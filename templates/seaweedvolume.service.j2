@@ -1,0 +1,22 @@
+[Unit]
+Description=SeaweedFS Volume
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+User={{sw_username}}
+Group={{sw_groupname}}
+
+ExecStart={{seaweedfs_install_path}}/weed volume -dir="{{seaweedfs_voldir}}" -max=10 \
+                                     -mserver="{{seaweedfs_master_hostname}}:{{seaweedfs_masterport}}" \
+                                     -port={{seaweedfs_volport}} -ip {{ ansible_all_ipv4_addresses | ipaddr('172.16.0.0/24') | first }} \
+                                     -dataCenter {{ seaweedfs_dataCenter | default('DefaultDataCenter') }} \
+                                     -rack {{ seaweedfs_rack | default('DefaultRack') }} \
+                                     -ip.bind={{ ansible_all_ipv4_addresses | ipaddr('172.16.0.0/24') | first }}
+
+WorkingDirectory={{seaweedfs_install_path}}
+SyslogIdentifier=seaweedfs-volume
+
+[Install]
+WantedBy=multi-user.target

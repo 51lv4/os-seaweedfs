@@ -1,0 +1,18 @@
+[Unit]
+Description=SeaweedFS Master
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+User={{sw_username}}
+Group={{sw_groupname}}
+
+ExecStart={{seaweedfs_install_path}}/weed master -ip {{ ansible_all_ipv4_addresses | ipaddr('172.16.0.0/24') | first }} \
+                                                 -defaultReplication {{ seaweedfs_replication }} \
+                                                 -ip.bind={{ ansible_all_ipv4_addresses | ipaddr('172.16.0.0/24') | first }}
+WorkingDirectory={{seaweedfs_install_path}}
+SyslogIdentifier=seaweedfs-master
+
+[Install]
+WantedBy=multi-user.target

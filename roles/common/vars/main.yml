@@ -1,0 +1,17 @@
+---
+# vars file for common
+
+# Configuração da firewall
+firewall_allowed_tcpp:
+  - 22
+  - 8080          # volumes
+  - 8889          # filer
+  - 9333          # master
+  - 18080
+  - 18889
+  - 19333
+#firewall_allowed_udpp:        # Comentado, caso contrário a role falha
+
+
+
+sw_user_pw: vagrant         # É um workaround!! Uso correto seria com ansible-vault

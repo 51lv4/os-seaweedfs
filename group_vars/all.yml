@@ -1,0 +1,18 @@
+---
+# Utilizador e grupo
+sw_username: seaweedfs
+sw_groupname: seaweedfs
+
+
+
+# Usado pelos templates do serviço
+seaweedfs_volport: 8080
+seaweedfs_masterport: 9333
+seaweedfs_voldir: /mnt/swvol
+seaweedfs_install_path: /usr/local/bin
+seaweedfs_master_hostname: os-sw1
+seaweedfs_filer_path: /home/{{sw_username}}/.seaweedfs
+seaweedfs_filer_port: 8889
+seaweedfs_dataCenter: os-dc1
+seaweedfs_rack: os-rack1
+seaweedfs_replication: "002"          # Cria 2(+1) réplicas em cada rack

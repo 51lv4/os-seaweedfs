@@ -1,0 +1,21 @@
+[Unit]
+Description=SeaweedFS Filer
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+User={{sw_username}}
+Group={{sw_groupname}}
+
+ExecStart={{seaweedfs_install_path}}/weed filer -ip {{ ansible_all_ipv4_addresses | ipaddr('172.16.0.0/24') | first }} \
+                                                -port {{seaweedfs_filer_port}} \
+                                                -dataCenter {{ seaweedfs_dataCenter | default('DefaultDataCenter') }} \
+                                                -rack {{ seaweedfs_rack | default('DefaultRack') }} \
+                                                -master "{{seaweedfs_master_hostname}}:{{seaweedfs_masterport}}"
+
+WorkingDirectory={{seaweedfs_filer_path}}
+SyslogIdentifier=seaweedfs-filer
+
+[Install]
+WantedBy=multi-user.target

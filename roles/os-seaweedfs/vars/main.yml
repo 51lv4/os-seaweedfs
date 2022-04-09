@@ -1,0 +1,11 @@
+---
+# vars file for os-seaweedfs
+
+seaweedfs_version: latest 
+seaweedfs_download_path: /srv/seaweed_downloads
+#seaweedfs_install_path: /usr/local/bin
+
+seaweedfs_download_url: "https://github.com/chrislusf/seaweedfs/releases/download/{{seaweedfs_latest.json.tag_name}}/linux_amd64.tar.gz"
+seaweedfs_md5sum_url: "https://github.com/chrislusf/seaweedfs/releases/download/{{seaweedfs_latest.json.tag_name}}/linux_amd64.tar.gz.md5"
+seaweedfs_md5sum: "md5: {{ lookup('url', seaweedfs_md5sum_url) }}"
+

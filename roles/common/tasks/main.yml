@@ -1,0 +1,29 @@
+---
+# Este playbook corre todas as plays comuns a todos os servidores
+
+- name: Criar o ficheiro /etc/hosts com as os endereços de todos os nos do cluster
+  template: src=hosts.j2 dest=/etc/hosts
+
+- name: Criação do grupo
+  group:
+    name: "{{ sw_groupname }}"
+    state: present
+
+- name: Criação do utilizador que vai correr o serviço
+  user:
+    name: "{{ sw_username }}"
+    comment: SeaweedFS User
+    shell: /bin/bash
+    password: "{{ sw_user_pw | password_hash('sha512') }}"
+    uid: 1040
+    group: "{{ sw_groupname }}"
+
+# Configuração da firewall
+
+- name: Configuração da firewall em firewalld
+  import_tasks: redhat.yml
+  when: ansible_facts['os_family']|lower == 'redhat'
+
+- name: Configuração da firewall em ufw
+  import_tasks: debian.yml
+  when: ansible_facts['os_family']|lower == 'debian'

@@ -1,0 +1,32 @@
+---
+- name: SeaweedFS Host Connection to Cluster.
+  hosts: localhost
+  connection: local
+  become: yes
+  #become_method: sudo
+
+  vars:
+    sw_mount_dir: /mnt/seaweed
+    sw_filer_ip: 172.16.0.10  
+    sw_filer_port: 8889
+    sw_filer_path: /
+
+  tasks:
+  - name: Criar a pasta onde vai ser montado o volume.
+    file:
+      path: '{{ sw_mount_dir }}'
+      mode: 0777
+      owner: 's1lv4'
+      group: 's1lv4'
+      state: directory
+
+  - name: Garantir que o volume se encontra montado.
+    mount:
+      name: "{{ sw_mount_dir }}"
+      src: fuse
+      fstype: fuse.weed
+      boot: no
+      opts: "filer={{sw_filer_ip}}:{{sw_filer_port}},filer.path={{sw_filer_path}}"
+      state: mounted
+
+
